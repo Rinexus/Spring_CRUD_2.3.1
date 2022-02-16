@@ -1,27 +1,28 @@
 package web.dao;
 
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import web.model.User;
 
 import javax.persistence.*;
 import java.util.List;
 
-@Component
+@Repository
 public class UserDAOImpl implements UserDAO{
     @PersistenceContext(unitName = "entityManagerFactory")
     private EntityManager entityManager;
 
     @Override
-    public List<User> index(){
+    public List<User> getUsers(){
          return entityManager.createQuery("SELECT u FROM User u", User.class).getResultList();
     }
 
     @Override
-    public User show(int id) {
+    public User getUser(int id) {
         String HQL = "SELECT u FROM User u WHERE u.id =: userId";
-       return  entityManager.createQuery(HQL, User.class)
+        return entityManager.createQuery(HQL, User.class)
                 .setParameter("userId", id)
-                .getResultList().stream().findAny().orElse(null);
+                .getSingleResult();
     }
 
     @Override
@@ -30,11 +31,8 @@ public class UserDAOImpl implements UserDAO{
     }
 
     @Override
-    public void update(Integer id,User updatedUser){
-        User userToBeUpdated = show(id);
-        userToBeUpdated.setName(updatedUser.getName());
-        userToBeUpdated.setEmail(updatedUser.getEmail());
-        entityManager.persist(userToBeUpdated);
+    public void update(User updatedUser){
+        entityManager.merge(updatedUser);
     }
 
     @Override

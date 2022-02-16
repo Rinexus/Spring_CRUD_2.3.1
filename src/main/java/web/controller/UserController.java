@@ -10,18 +10,23 @@ import web.service.UserService;
 @Controller
 @RequestMapping("/users")
 public class UserController {
+
+    private final UserService userService;
+
     @Autowired
-    private UserService userService;
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping()
-    public String index(Model model){
-        model.addAttribute("users", userService.index());
+    public String listUsers(Model model){
+        model.addAttribute("users", userService.getUsers());
         return "users/index";
     }
 
     @GetMapping("/{id}")
-    public String show(@PathVariable("id") Integer id, Model model) {
-        model.addAttribute("user", userService.show(id));
+    public String showUserInfo(@PathVariable("id") Integer id, Model model) {
+        model.addAttribute("user", userService.getUser(id));
         return "users/show";
     }
 
@@ -38,13 +43,13 @@ public class UserController {
 
     @GetMapping("/{id}/edit")
     public String edit(Model model, @PathVariable("id") Integer id){
-        model.addAttribute("user", userService.show(id));
+        model.addAttribute("user", userService.getUser(id));
         return "users/edit";
     }
 
     @PatchMapping("/{id}")
     public String update(@ModelAttribute("user") User user, @PathVariable("id") Integer id){
-        userService.update(id, user);
+        userService.update(user);
         return "redirect:/users";
     }
 
